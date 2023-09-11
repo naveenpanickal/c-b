@@ -1,2 +1,4 @@
-<app-game-child [Player] = "'Player1'"></app-game-child>
-<app-game-child [Player] = "'Player2'"></app-game-child>
+<app-game-child [isGameOver] = "isGameOver" [opponentGuess]="player1Guess" [secretNumber] ='secretNumberPlayer2' (guessFeedback)="feedbackPlayer1($event)"></app-game-child>
+<app-game-child [isGameOver] = "isGameOver" [opponentGuess]="player2Guess" [secretNumber] = "secretNumberPlayer1" (guessFeedback)="feedbackPlayer2($event)"></app-game-child>
+
+<h2>{{winMessage}}</h2>

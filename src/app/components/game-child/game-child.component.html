@@ -1,1 +1,13 @@
-<p>game-child works!</p>
+<div>
+  <div>
+    <h2>Secret number:</h2>
+    <h2>{{secretNumber}}</h2>
+  </div>
+  <ul>
+    <li class="line" *ngFor="let guess of playerStats.guesses">
+      <h4>{{guess.guess}}</h4>
+      <h4>{{guess.feedback.b}}</h4>
+      <h4>{{guess.feedback.c}}</h4>
+    </li>
+  </ul>
+</div>
