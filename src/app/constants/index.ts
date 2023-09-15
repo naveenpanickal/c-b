@@ -1,3 +1,5 @@
+import { PLAYER } from "../models";
+
 export const VALID_NUMBERS = [
   "0123",
   "0124",
@@ -5040,3 +5042,85 @@ export const VALID_NUMBERS = [
   "9875",
   "9876"
 ]
+
+
+export let PlayersData = {
+  players: [
+    {
+      skill: 0.85,
+      name : "Player 1",
+      id: "1",
+      elo_rating: 400,
+      glicko_rating: 400,
+      trueskill_rating: 400,
+      no_of_games: 0,
+      wins: 0,
+      losses: 0,
+      draws: 0,
+      online: true
+    },
+    {
+      skill: 0.55,
+      name : "Player 2",
+      id: "2",
+      elo_rating: 400,
+      glicko_rating: 400,
+      trueskill_rating: 400,
+      no_of_games: 0,
+      wins: 0,
+      draws: 0,
+      losses: 0,
+      online: true
+    },
+    {
+      skill: 0.20,
+      name : "Player 3",
+      id: "3",
+      elo_rating: 400,
+      glicko_rating: 400,
+      trueskill_rating: 400,
+      no_of_games: 0,
+      wins: 0,
+      draws: 0,
+      losses: 0,
+      online: true
+    },
+    {
+      skill: 0.65,
+      name : "Player 4",
+      id: "4",
+      elo_rating: 400,
+      glicko_rating: 400,
+      trueskill_rating: 400,
+      no_of_games: 0,
+      wins: 0,
+      losses: 0,
+      draws: 0,
+      online: true
+    }
+  ],
+
+  getValue: function(playerId: string) {
+      let player = this.players.find(player => player.id === playerId);
+      if (player) {
+          return player;
+      } else {
+          return `Student with ID ${playerId} not found.`;
+      }
+  },
+
+  updateStudentData: function(playerId: string, newData: PLAYER) {
+      let player = this.players.find(player => player.id === playerId);
+      if (player && player != undefined) {
+          // Object.keys(newData).forEach(key => {
+          //     player[key] = newData[key];
+          // });
+          Object.assign(player, newData)
+          let newPlayer = this.players.find(player => player.id === playerId)
+          console.log("NEW DATA",JSON.stringify(newPlayer));
+          return `Data for player with ID ${playerId} has been updated.`;
+      } else {
+          return `player with ID ${playerId} not found.`;
+      }
+  }
+};

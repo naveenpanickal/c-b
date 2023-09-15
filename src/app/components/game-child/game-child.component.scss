@@ -5,3 +5,8 @@
 h4{
   margin: 0.5rem 1rem;
 }
+
+.guesses{
+  max-height: 300px;
+  overflow-y: scroll;
+}

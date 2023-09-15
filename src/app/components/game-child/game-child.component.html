@@ -1,10 +1,10 @@
 <div>
-  <div>
+  <div class="mb-3">
     <h2>Secret number:</h2>
     <h2>{{secretNumber}}</h2>
   </div>
-  <ul>
-    <li class="line" *ngFor="let guess of playerStats.guesses">
+  <ul class="guesses p-3">
+    <li #scrollMe [scrollTop]="scrollMe.scrollHeight" class="line" *ngFor="let guess of playerStats.guesses">
       <h4>{{guess.guess}}</h4>
       <h4>{{guess.feedback.b}}</h4>
       <h4>{{guess.feedback.c}}</h4>
