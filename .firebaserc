@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "bull-and-cow-a5c2b": {
+      "hosting": {
+        "cbsim": [
+          "bull-and-cow-a5c2b"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "bull-and-cow-a5c2b"
+  }
+}
