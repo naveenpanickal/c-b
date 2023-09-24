@@ -1,6 +1,8 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
-import { of } from 'rxjs';
+import { log } from 'console';
+import { Observable, forkJoin, of } from 'rxjs';
 import { PlayersData, VALID_NUMBERS } from 'src/app/constants';
+import { DataService } from 'src/app/services/data.service';
 import { GuessService } from 'src/app/services/guess.service';
 import { Rating, quality_1vs1, rate_1vs1 } from 'ts-trueskill';
 
@@ -10,6 +12,7 @@ import { Rating, quality_1vs1, rate_1vs1 } from 'ts-trueskill';
   styleUrls: ['./game.component.scss']
 })
 export class GameComponent {
+  players$! : Observable<any> ;
   resetGameCount = 0;
   player1CurrentFeedback: {bull: number, cow: number } = {bull: -1, cow: -1}
   player2CurrentFeedback: {bull: number, cow: number } = {bull: -1, cow: -1}
@@ -17,31 +20,34 @@ export class GameComponent {
    elo = new this.Elo(32);
    player1InitialGuessOver = false
    player2InitialGuessOver = false
-  player1 = {
-    skill: 0.65,
-    name : "Player One",
-    id: 101,
-    elo_rating: 400,
-    glicko_rating: 400,
-    trueskill_rating: 400,
-    no_of_games: 0,
-    wins: 0,
-    losses: 0,
-    online: true
-  }
+  // player1 = {
+  //   skill: 0.65,
+  //   name : "Player One",
+  //   id: 101,
+  //   elo: {rating: 400},
+  //   glicko_rating: 400,
+  //   trueskill_rating: 400,
+  //   no_of_games: 0,
+  //   wins: 0,
+  //   losses: 0,
+  //   is_online: true
+  // }
 
-  player2 = {
-    skill: 0.95,
-    name : "Player two",
-    id: 121,
-    elo_rating: 600,
-    glicko_rating: 400,
-    trueskill_rating: 400,
-    no_of_games: 0,
-    wins: 0,
-    losses: 0,
-    online: true
-  }
+  // player2 = {
+  //   skill: 0.95,
+  //   name : "Player two",
+  //   id: 121,
+  //   elo: {rating: 600},
+  //   glicko_rating: 400,
+  //   trueskill_rating: 400,
+  //   no_of_games: 0,
+  //   wins: 0,
+  //   losses: 0,
+  //   online: true
+  // }
+  player1: any ={};
+  player2: any ={};
+
 
   secretNumberPlayer1 = '';
   secretNumberPlayer2 = '';
@@ -51,6 +57,7 @@ export class GameComponent {
   player1GuessCount$ = of(this.player1GuessCount)
   player2GuessCount = 0;
   player2GuessCount$ = of(this.player2GuessCount)
+  clearDisplay = false;
   // player1Guesses: string[] = ["2322", "8302", "8492", "2342", "9706","8492",  "7906", "0173",
   // "0174",
   // "0175",
@@ -95,14 +102,37 @@ export class GameComponent {
   player2GuessedCorrectly=false ;
 
 
-  constructor(private guessService: GuessService, private cd: ChangeDetectorRef){
+  constructor(private guessService: GuessService, private cd: ChangeDetectorRef, private data: DataService){
 
   }
 
+
   ngOnInit(): void {
+    this.data.getPlayer('JJU9dJmWXjMCklWivCjx').subscribe(data => {
+      // console.log("player:",data);
+
+    })
+
+    this.players$ = forkJoin({player1: this.data.getPlayer("0MFQez1ojAtKbTtdNEIC"),
+    player2: this.data.getPlayer('JJU9dJmWXjMCklWivCjx')});
+    this.players$.subscribe(data => {
+      console.log("player 1 current rating", data.player1.elo.rating);
+      console.log("player 2 current rating", data.player2.elo.rating);
+
+      this.player1= data.player1;
+      this.player2 = data.player2;
+      this.startGame();
+
+    })
 
 
+    // this.data.updatePlayer('0MFQez1ojAtKbTtdNEIC',"skill", 0.60);
+    // this.data.getPlayers().subscribe(data => {
+    //   console.log("GET PLAYER DATA",data);
 
+    // })
+
+    // debugger;
     // console.log("OLD DATA FROM PARENT", PlayersData.players)
     let expected = this.elo.getExpected(600,400);
     // console.log("EXPECTED", expected);
@@ -136,7 +166,7 @@ export class GameComponent {
     // console.log("parent");
     // debugger;
 
-    this.startGame();
+    // this.startGame();
 
 
     // this.player1Gameplay(this.player1);
@@ -153,11 +183,12 @@ export class GameComponent {
 
   }
 
+
   async startGame(){
     //inital guess for both players;
     this.secretNumberPlayer1 = this.giveRandomGuess(VALID_NUMBERS);
     this.secretNumberPlayer2= this.giveRandomGuess(VALID_NUMBERS);
-    await this.delay(3000);
+    await this.delay(100);
     this.initialGuesS();
   }
 
@@ -165,15 +196,18 @@ export class GameComponent {
   async initialGuesS(){
     // console.log("initial guess");
 
-    this.guessService.sendGuessPlayer1("1234", this.player1.id)
-    this.guessService.sendGuessPlayer2("1234", this.player2.id);
-    this.onGuess(1);
+    // this.guessService.sendGuessPlayer1("1234", this.player1.id)
+    // this.guessService.sendGuessPlayer2("1234", this.player2.id);
 
-    // this.player1Guess = this.giveRandomGuess(VALID_NUMBERS);
-    // this.player2Guess = this.giveRandomGuess(VALID_NUMBERS);
-    await this.delay(3000);
+
+    this.player1Guess = this.giveRandomGuess(VALID_NUMBERS);
+    this.player2Guess = this.giveRandomGuess(VALID_NUMBERS);
     this.player1GuessCount++;
     this.player2GuessCount++;
+    this.onGuess(1);
+    // await this.delay(200);
+    // this.player1GuessCount++;
+    // this.player2GuessCount++;
 
   }
 
@@ -320,7 +354,7 @@ export class GameComponent {
 }
 
   nextGuessPlayer1(feedback: any){
-    console.log("PLAYER 1 SKILL",this.player1.skill);
+    // console.log("PLAYER 1 SKILL",this.player1.skill);
 
 
     // console.log(` feedback1: ${JSON.stringify(feedback)}`);
@@ -330,14 +364,14 @@ export class GameComponent {
   });
   // console.log("REFINED PLAYER 1 GUESSES", this.player1Guesses);
   let rand = Math.random() ;
-  console.log("Guess 1",rand < this.player1.skill);
+  // console.log("Guess 1",rand < this.player1.skill);
 
     if(rand < this.player1.skill){
       this.player1Guess = this.nextGuess(this.player1Guesses)
     }
     else{
-      console.log("PLAYER1 random guess");
-
+      // console.log("PLAYER1 random guess");
+      // this.player1Guesses = VALID_NUMBERS;
       this.player1Guess = this.giveRandomGuess(this.player1Guesses)
 
     }
@@ -350,7 +384,7 @@ export class GameComponent {
 
   }
   nextGuessPlayer2(feedback: any){
-    console.log("PLAYER 2 SKILL",this.player2.skill);
+    // console.log("PLAYER 2 SKILL",this.player2.skill);
     // console.log(` feedback2: ${JSON.stringify(feedback)}`);
     this.player2Guesses = this.player2Guesses.filter(num => {
 
@@ -363,11 +397,12 @@ export class GameComponent {
   });
   // console.log("REFINED PLAYER 2 GUESSES", this.player2Guesses);
   let rand = Math.random();
-  console.log("Guess 2",rand < this.player2.skill);
+  // console.log("Guess 2",rand < this.player2.skill);
   if(rand < this.player2.skill){
     this.player2Guess = this.nextGuess(this.player2Guesses)
   }
   else{
+    // this.player2Guesses = VALID_NUMBERS;
     this.player2Guess = this.giveRandomGuess(this.player2Guesses)
   }
 
@@ -378,13 +413,14 @@ export class GameComponent {
 
   }
    async resetGame(){
+    console.log("Entered reset game");
+
+    // debugger;
     this.resetGameCount++;
     // if(this.resetGameCount>1){
     //   debugger;
     // }
-    await this.delay(5000)
-
-    this.isGameOver = true;
+    this.clearDisplay = true;
         this.cd.detectChanges()
     this.getNewPlayers();
     this.winMessage = "";
@@ -398,6 +434,7 @@ export class GameComponent {
   this.player2GuessCount = 0;
   this.player1Guesses = VALID_NUMBERS;
   this.player2Guesses = VALID_NUMBERS;
+  this.clearDisplay = false;
   this.isGameOver = false;
   this.hasAnyOneWin = false;
   this.player1GuessedCorrectly = false;
@@ -406,7 +443,7 @@ export class GameComponent {
   this.player2InitialGuessOver = false;
   // console.log("reset p1 guesses",this.player1Guesses);
 
-  await this.delay(5000);
+  await this.delay(3000);
   this.startGame()
 
    }
@@ -468,58 +505,122 @@ export class GameComponent {
 }
 
 
-onGuess(player: number){
+async onGuess(player: number){
+  // console.log("player:", player);
+  await this.delay(500);
+
   if(player === 1){
+    // console.log("Entered player 1");
     if(!this.player1InitialGuessOver){
 
       this.player1Guess = this.giveRandomGuess(VALID_NUMBERS);
       this.player1InitialGuessOver = true;
     }
     else{
-      this.nextGuessPlayer1(this.player1CurrentFeedback)
+      this.nextGuessPlayer1(this.player1CurrentFeedback);
+      this.player1GuessCount++;
       if(this.isCorrectGuess(this.player1CurrentFeedback)){
         this.player1GuessedCorrectly = true
+        // this.checkStatus()
       }
     }
-    setTimeout(() => this.onGuess(2), 2000)
+
+    if(!this.isGameOver){
+      // setTimeout(() =>{  console.log("go to player 2"); this.onGuess(2)}, 1000)
+      this.onGuess(2);
+    }
+
   }
   if(player ===2){
+    // console.log("Entered player 2");
+
     if(!this.player2InitialGuessOver){
       this.player2Guess = this.giveRandomGuess(VALID_NUMBERS);
       this.player2InitialGuessOver = true;
     }
     else{
-      this.nextGuessPlayer2(this.player2CurrentFeedback)
+      this.nextGuessPlayer2(this.player2CurrentFeedback);
+      this.player2GuessCount++;
       if(this.isCorrectGuess(this.player2CurrentFeedback)){
         this.player2GuessedCorrectly = true;
       }
       this.checkStatus()
     }
     if(!this.isGameOver){
-      setTimeout(() => this.onGuess(1), 2000)
+      // setTimeout(() => {console.log("go to player 1"); this.onGuess(1)}, 1000)
+      this.onGuess(1);
     }
   }
 }
 
 async checkStatus(){
+  // console.log("Entered check status");
+
   if (this.player1GuessedCorrectly && this.player2GuessedCorrectly) {
     this.winMessage = "Game Drawn"
+    console.log("Player 1 feedback final", this.player1CurrentFeedback);
+    console.log("Player 2 feedback final", this.player2CurrentFeedback);
+    console.log("Player 1 gUESS coUNT final", this.player1GuessCount);
+    console.log("Player 2 gUESS coUNT final", this.player2GuessCount);
+    console.log(this.winMessage);
+
     this.isGameOver = true;
-    await this.delay(5000)
-    this.resetGame()
+    let player1Rating = this.elo.updateRating(this.elo.getExpected(this.player1.elo.rating,this.player2.elo.rating),0.5,this.player1.elo.rating);
+    let player2Rating = this.elo.updateRating(this.elo.getExpected(this.player2.elo.rating,this.player1.elo.rating),0.5,this.player2.elo.rating);
+
+    // console.log("player 1 new rating", player1Rating);
+    // console.log("player 2 new rating", player2Rating);
+
+
 
   } else if (this.player1GuessedCorrectly) {
     this.winMessage = "Player 1 won!!"
-    await this.delay(5000)
-    this.resetGame()
+    console.log("Player 1 feedback final", this.player1CurrentFeedback);
+    console.log("Player 2 feedback final", this.player2CurrentFeedback);
+    console.log("Player 1 gUESS coUNT final", this.player1GuessCount);
+    console.log("Player 2 gUESS coUNT final", this.player2GuessCount);
+    console.log(this.winMessage);
+
+    // let expected = this.elo.getExpected(this.player1.elo.rating,400);
+    // console.log("EXPECTED", expected);
+    let player1Rating = this.elo.updateRating(this.elo.getExpected(this.player1.elo.rating,this.player2.elo.rating),1,this.player1.elo.rating);
+    let player2Rating = this.elo.updateRating(this.elo.getExpected(this.player2.elo.rating,this.player1.elo.rating),0,this.player2.elo.rating);
+    // this.player1 = Object.assign(this.player1, {no_of_games: })
+    // console.log("player 1 new rating", player1Rating);
+    // console.log("player 2 new rating", player2Rating);
+
     this.isGameOver = true;
   } else if (this.player2GuessedCorrectly) {
     this.winMessage = "Player 2 won!!"
-    await this.delay(5000)
-    this.resetGame()
+    console.log("Player 1 feedback final", this.player1CurrentFeedback);
+    console.log("Player 2 feedback final", this.player2CurrentFeedback);
+    console.log("Player 1 gUESS coUNT final", this.player1GuessCount);
+    console.log("Player 2 gUESS coUNT final", this.player2GuessCount);
+    console.log(this.winMessage);
+    let player1Rating = this.elo.updateRating(this.elo.getExpected(this.player1.elo.rating,this.player2.elo.rating),0,this.player1.elo.rating);
+    let player2Rating = this.elo.updateRating(this.elo.getExpected(this.player2.elo.rating,this.player1.elo.rating),1,this.player2.elo.rating);
+    // console.log("player 1 new rating", player1Rating);
+    // console.log("player 2 new rating", player2Rating);
+
     this.isGameOver = true;
   }
 
+  if(this.isGameOver){
+    await this.delay(1000)
+    // console.log("cALLING RESET GAME");
+
+    this.resetGame()
+  }
+
+}
+
+start(){
+  // console.log("pressed");
+
+  // this.players$.subscribe(data => {
+  //   console.log("PLAYERS",data);
+
+  // } )
 }
 
 }
