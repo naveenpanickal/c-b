@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Firestore, collectionData, collection, getDoc, doc, CollectionReference, DocumentData, updateDoc, docData } from '@angular/fire/firestore';
+import { Firestore, collectionData, collection, getDoc, doc, CollectionReference, DocumentData, updateDoc, docData, addDoc } from '@angular/fire/firestore';
 import { Observable, take } from 'rxjs';
 
 @Injectable({
@@ -30,16 +30,28 @@ export class DataService {
     return this.items$;
 
   }
+
+  getGames(){
+    const gameCollection = this.colRef('games');
+    return collectionData(gameCollection);
+  }
    getPlayer(id: string){
-    console.log("get player called")
+    // console.log("get player called",id)
+
     // return  docData(this.playerDocRef(id));
     return docData(this.playerDocRef(id)).pipe(take(1));
   }
 
-  updatePlayer(id: string, field: string, data: any){
-    return updateDoc(this.playerDocRef(id), {
-      [field]: data
-    });
+  updatePlayer(id: string, data: any){
+    // console.log(id, data);
+
+    return updateDoc(this.playerDocRef(id), data);
+  }
+
+  addGames(gameData: any){
+    // console.log("Update game data",gameData);
+
+    return addDoc(this.colRef("games"), gameData);
   }
 
   }

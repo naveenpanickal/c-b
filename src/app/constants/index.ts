@@ -5043,6 +5043,15 @@ export const VALID_NUMBERS = [
   "9876"
 ]
 
+export interface TABLE_DATA  {
+name: string;
+no_of_games: number;
+elo: number;
+wins: number;
+losses: number;
+draws: number;
+}
+
 
 export let PlayersData = {
   players: [
@@ -5138,3 +5147,5 @@ export let PlayersData = {
 // function getNewRating(myRating: number, opponentRating: number, myGameResult: number) {
 //   return myRating + getRatingDelta(myRating, opponentRating, myGameResult);
 // }
+
+export const PLAYER_IDS = ["0MFQez1ojAtKbTtdNEIC", "CHZvSHCnzWCE8XfXyUHs", "I2xFRto61qloqpni7eGd", "JJU9dJmWXjMCklWivCjx", "QVLBatZ7ZuiFEApz4PDP", "cqIfxX8VkVbGVUkc88Qc", "dih0471qWovsOGdsINkR", "ezV1Pdbns2idz5RzdqJz", "fLTscFZTmTYPhHWIcyo9", "fjzaujdrJ7BqiWAAS84A", "nVadrkcx4ayldOlz4WaF", "qtsm6TAnmslAIKR3f10h"]

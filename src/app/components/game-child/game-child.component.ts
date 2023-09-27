@@ -45,7 +45,7 @@ export class GameChildComponent {
   clearDisplay(){
     // console.log("Clear display");
 
-    this.Player  = '';
+
    this.secretNumber  = '';
    this.opponentGuess  = ''
     this.isGameOver = true;
@@ -59,66 +59,11 @@ export class GameChildComponent {
   }
 
   ngAfterViewInit(){
-    // console.log("player: ",this.Player === "Player1");
-    // this.guessService.getTest().subscribe(data => {
-    //   console.log("DATA CHILD",data);
 
-    // })
-
-    // if(this.Player === "Player1"){
-    //   this.player1()
-    // }
-    // else if(this.Player === "Player2"){
-    //   this.player2()
-    // }
 
   }
 
-  // player1(){
-  //   console.log("Hello");
-  //     this.playerData$ = this.guessService.getSecretNumberPlayer2();
-  //     console.log(this.playerData$);
-  //     this.playerData$.subscribe((data: any) => {
 
-  //         console.log('data: ', data)
-  //       this.secretNumber = data.number;
-  //       this.guessService.getGuessPlayer1().subscribe(guess => {
-
-  //           console.log("GUESS FROM PLAYER 1", guess);
-  //         if(guess === this.secretNumber){
-  //           this.guessService.sendFeedbackPlayer1(4, 0, true)
-  //         }
-  //         else{
-  //           let result = this.getHint(this.secretNumber, guess);
-  //           this.guessService.sendFeedbackPlayer1(result.bull, result.cow, false)
-  //         }
-  //       })
-  //     })
-  // }
-
-  // player2(){
-  //   console.log("Hello2");
-  //     this.playerData$ = this.guessService.getSecretNumberPlayer1();
-  //     this.playerData$.subscribe((data:any) => {
-
-  //         console.log('data: ', data)
-  //       this.secretNumber = data.number;
-  //       this.guessService.getGuessPlayer2().subscribe(guess => {
-
-  //           console.log("GUESS FROM PLAYER 2", guess);
-  //         if(guess === this.secretNumber){
-
-  //           this.guessService.sendFeedbackPlayer2(4, 0, true)
-  //         }
-  //         else{
-  //           let result = this.getHint(this.secretNumber, guess);
-  //           this.guessService.sendFeedbackPlayer2(result.bull, result.cow, false)
-  //         }
-  //       })
-
-
-  //     })
-  // }
 
 
   getHint( guess: string) {
