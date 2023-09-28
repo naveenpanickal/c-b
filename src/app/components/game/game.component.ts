@@ -64,16 +64,43 @@ export class GameComponent {
 
 
   ngOnInit(): void {
+    // console.log("ids");
+
+
+    // for(const player of this.PlayersIds){
+
+
+
+    //   this.data.updatePlayer(player, {
+    //     "wins": 0,
+    // "draws": 0,
+    // "glicko": {
+    //   "mu": 1500,
+    //   "sigma": 0.06,
+    //   "rd": 350
+    // },
+    // "elo": {
+    //   "rating": 1200
+    // },
+    // "losses": 0,
+    // "no_of_games": 0,
+    // "is_online": true,
+    // "trueskill": {
+    //   "mu": 25,
+    //   "sigma": 8.333
+    // }
+
+    //   })
+    // }
 
     this.data.getGames().subscribe(data => {
-      let totalNoOfGames = data.length;
-      let noOfGames = data.filter(game => game["elo_correction_new"]).length;
-      let correctElo = data.filter(game => game["elo_correction_new"] && game["elo_predition_correct"] === true).length
-      let correctTrueskill = data.filter(game => game["elo_correction_new"] &&  game["trueskill_prediction_correct"] === true).length
-      let correctGlicko = data.filter(game => game["elo_correction_new"] && game["glicko_prediction_correct"] === true).length
+      let noOfGames = data.filter(game => game["elo_match"]).length;
+      let correctElo = data.filter(game => game["elo_match"] && game["elo_predition_correct"] === true).length
+      let correctTrueskill = data.filter(game => game["elo_match"] &&  game["trueskill_prediction_correct"] === true).length
+      let correctGlicko = data.filter(game => game["elo_match"] && game["glicko_prediction_correct"] === true).length
 
       console.log("ELO: ", `${correctElo} / ${noOfGames}`);
-      console.log("Glicko: ", `${correctGlicko} / ${totalNoOfGames}`);
+      console.log("Glicko: ", `${correctGlicko} / ${noOfGames}`);
       console.log("Trueskill: ", `${correctTrueskill} / ${noOfGames}`);
 
 
@@ -179,28 +206,96 @@ export class GameComponent {
   async startSimulation(){
     // console.log("Entered simulation");
 
-    let [player1Id, Player2Id] = this.selectTwoRandomElements(this.PlayersIds)
-    if(player1Id != "" && Player2Id != ''){
-      // console.log("Players",[player1Id, Player2Id]);
+    // let [player1Id, Player2Id] = this.selectTwoRandomElements(this.PlayersIds)
+    // if(player1Id != "" && Player2Id != ''){
+    //   // console.log("Players",[player1Id, Player2Id]);
 
-      this.players$ = forkJoin({player1: this.data.getPlayer(player1Id),
-    player2: this.data.getPlayer(Player2Id)});
-    this.playersSubscription = this.players$.subscribe(data => {
-      // console.log("player 1 current rating", data);
-      // console.log("player 2 current rating", data);
+    //   this.players$ = forkJoin({player1: this.data.getPlayer(player1Id),
+    // player2: this.data.getPlayer(Player2Id)});
+    // this.playersSubscription = this.players$.subscribe(data => {
+    //   // console.log("player 1 current rating", data);
+    //   // console.log("player 2 current rating", data);
 
-      this.player1= data.player1;
-      this.player2 = data.player2;
-      this.startGame();
-
-
+    //   this.player1= data.player1;
+    //   this.player2 = data.player2;
+    //   this.startGame();
 
 
-    })
 
+
+    // })
+
+    // }
+//***is online random selection */
+    // let onlinePlayersIds: string[] = [];
+    // const playersObservables = this.PlayersIds.map(id => this.data.getPlayer(id));
+
+    // Use forkJoin to wait for all Observables to complete and get the player objects.
+  //   const players = await forkJoin(playersObservables).toPromise();
+  // if(players)
+  //   players.forEach((player, index) => {
+  // if(player)
+  //       if (player["is_online"]) onlinePlayersIds.push(this.PlayersIds[index]);
+  //   });
+
+  //   if(onlinePlayersIds.length >= 2) {
+  //       let [player1Id, Player2Id] = this.selectTwoRandomElements(onlinePlayersIds);
+
+  //       this.players$ = forkJoin({
+  //           player1: this.data.getPlayer(player1Id),
+  //           player2: this.data.getPlayer(Player2Id)
+  //       });
+  //       this.playersSubscription = this.players$.subscribe(data => {
+  //           this.player1= data.player1;
+  //           this.player2 = data.player2;
+  //           this.startGame();
+  //       });
+  //   }
+    //***elo is_online */
+    let onlinePlayers: any[] = [];
+    const playersObservables = this.PlayersIds.map(id => this.data.getPlayer(id));
+
+    // Get all players.
+    const players = await forkJoin(playersObservables).toPromise();
+
+    // Filter online players.
+    if(players)
+
+    players.forEach((player, index) => {
+      if(player)
+        if (player["is_online"]) onlinePlayers.push({id: this.PlayersIds[index], ...player});
+    });
+
+    if(onlinePlayers.length >= 2) {
+        // Select one random player.
+        const randomIndex = Math.floor(Math.random() * onlinePlayers.length);
+        const randomPlayer = onlinePlayers[randomIndex];
+
+        // Remove the selected player from the list of online players.
+        onlinePlayers.splice(randomIndex, 1);
+
+        // Sort the remaining online players by the difference in elo.rating with the selected player.
+        onlinePlayers.sort((a, b) =>
+            Math.abs(a.elo.rating - randomPlayer.elo.rating) - Math.abs(b.elo.rating - randomPlayer.elo.rating)
+        );
+
+        // Select the closest player to pair with the random player.
+        const closestPlayer = onlinePlayers[0];
+
+        this.players$ = forkJoin({
+            player1: this.data.getPlayer(randomPlayer.id),
+            player2: this.data.getPlayer(closestPlayer.id)
+        });
+
+        this.playersSubscription = this.players$.subscribe(data => {
+            this.player1 = data.player1;
+            this.player2 = data.player2;
+            this.startGame();
+        });
     }
-
-
+    else{
+      console.log("**NOT ENOUGH PLAYERS ONLINE***")
+    }
 
   }
 
@@ -327,6 +422,16 @@ export class GameComponent {
 
   }
    async resetGame(){
+    const playersObservables = this.PlayersIds.map(id => this.data.getPlayer(id));
+    const players = await forkJoin(playersObservables).toPromise();
+    if(players)
+    players.forEach((player, index) => {
+        if(player) {
+            player["is_online"] = Math.random() < 0.5; // 50% chance to be online or offline
+            // You might need to call an update method to save the changed is_online status
+            this.data.updatePlayer(this.PlayersIds[index], player);
+        }
+    });
     // this.playersSubscription.unsubscribe();
     // console.log("player 1 current rating elo",this.player1.elo.rating);
     // console.log("player 2 current rating elo",this.player2.elo.rating);
@@ -479,7 +584,7 @@ async checkStatus(){
     let player1EloRating = {rating: p1EloRating};
     let player2EloRating = {rating: p2EloRating};
     let gameData = {
-      data: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: '', elo_predition_correct : eloPrediction === 0.5? true: false, glicko_prediction_correct: glickoPrediction === 0.5? true: false, trueskill_prediction_correct: trueskillPrediction === 0.5? true: false, is_valid: true, elo_correction_new: true
+      data: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: '', elo_predition_correct : eloPrediction === 0.5? true: false, glicko_prediction_correct: glickoPrediction === 0.5? true: false, trueskill_prediction_correct: trueskillPrediction === 0.5? true: false, is_valid: true, elo_correction_new: true, elo_match: true
     }
 
     // this.data.addGames({date: Date.now(), player1: "dfsdfsdf", player2: "3423423", winner: "423423", elo_predition_correct: false, glicko_prediction_correct: false, trueskill_prediction_correct: true})
@@ -502,7 +607,7 @@ async checkStatus(){
     let glickoP2 = this.glickoRanking.makePlayer(this.player2.glicko.mu, this.player2.glicko.rd, this.player2.glicko.sigma)
     const matches: (playerMatch | Race | teamMatch)[] = []
     matches.push([glickoP1, glickoP2, 0.5])
-    console.log("matches",matches);
+    // console.log("matches",matches);
     this.glickoRanking.updateRatings(matches);
     let player1GlickoRating = {mu: glickoP1.getRating(), rd: glickoP1.getRd(), sigma: glickoP1.getVol()}
     let player2GlickoRating = {mu: glickoP2.getRating(), rd: glickoP2.getRd(), sigma: glickoP2.getVol()}
@@ -542,12 +647,12 @@ async checkStatus(){
     // this.data.updatePlayer(this.player1.id, "elo", {rating: player1EloRating})
     // this.data.updatePlayer(this.player2.id, "elo", {rating: player2EloRating})
     let eloPrediction  = this.getPrediction(this.player1.elo.rating, this.player2.elo.rating );
-    console.log("ELO PREDICTION*******", eloPrediction);
+    // console.log("ELO PREDICTION*******", eloPrediction);
 
     let glickoPrediction = this.getPrediction(this.player1.glicko.mu, this.player2.glicko.mu);
     let trueskillPrediction = this.getPrediction(this.player1.trueskill.mu, this.player2.trueskill.mu);
     let gameData = {
-      data: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: this.player1.id, elo_predition_correct : eloPrediction === 1? true: false, glicko_prediction_correct: glickoPrediction === 1? true: false, trueskill_prediction_correct: trueskillPrediction === 1? true: false, is_valid: true, elo_correction_new: true
+      data: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: this.player1.id, elo_predition_correct : eloPrediction === 1? true: false, glicko_prediction_correct: glickoPrediction === 1? true: false, trueskill_prediction_correct: trueskillPrediction === 1? true: false, is_valid: true, elo_correction_new: true, elo_match: true
     }
     // this.player1 = Object.assign(this.player1, {elo:{rating: player1EloRating } });
     // this.player2 = Object.assign(this.player2, {elo:{rating: player2EloRating } });
@@ -600,9 +705,9 @@ async checkStatus(){
     let eloPrediction  = this.getPrediction(this.player1.elo.rating, this.player2.elo.rating );
     let glickoPrediction = this.getPrediction(this.player1.glicko.mu, this.player2.glicko.mu);
     let trueskillPrediction = this.getPrediction(this.player1.trueskill.mu, this.player2.trueskill.mu);
-    console.log("ELO PREDICTION*******", eloPrediction);
+    // console.log("ELO PREDICTION*******", eloPrediction);
     let gameData = {
-      data: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: this.player2.id, elo_predition_correct : eloPrediction === 0? true: false, glicko_prediction_correct: glickoPrediction === 0? true: false, trueskill_prediction_correct: trueskillPrediction === 0? true: false, is_valid: true, elo_correction_new: true
+      data: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: this.player2.id, elo_predition_correct : eloPrediction === 0? true: false, glicko_prediction_correct: glickoPrediction === 0? true: false, trueskill_prediction_correct: trueskillPrediction === 0? true: false, is_valid: true, elo_correction_new: true, elo_match: true
     }
     const p1 = new Rating(this.player1.trueskill.mu, this.player1.trueskill.sigma);
     const p2 = new Rating(this.player2.trueskill.mu, this.player2.trueskill.sigma);

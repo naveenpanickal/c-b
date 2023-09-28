@@ -20,7 +20,7 @@ export class LeaderBoardComponent {
       console.log("Players",this.players);
       this.dataSource  = new MatTableDataSource(data);
       console.log("DATA SOURCE", this.dataSource);
-      this.displayedColumns = ["name", "no_of_games","wins", "losses", "draws", "skill", "elo", "glicko", "trueskill", "win_perc"]
+      this.displayedColumns = ["name", "no_of_games","wins", "losses", "draws", "skill", "elo", "glicko", "trueskill", "win_perc", "is_online"]
 
 
     })
