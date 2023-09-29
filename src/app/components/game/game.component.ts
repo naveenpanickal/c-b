@@ -274,9 +274,9 @@ export class GameComponent {
         // Remove the selected player from the list of online players.
         onlinePlayers.splice(randomIndex, 1);
 
-        // Sort the remaining online players by the difference in glicko.mu with the selected player.
+        // Sort the remaining online players by the difference in trueskill.mu with the selected player.
         onlinePlayers.sort((a, b) =>
-            Math.abs(a.glicko.mu - randomPlayer.glicko.mu) - Math.abs(b.glicko.mu - randomPlayer.glicko.mu)
+            Math.abs(a.trueskill.mu - randomPlayer.trueskill.mu) - Math.abs(b.trueskill.mu - randomPlayer.trueskill.mu)
         );
 
         // Select the closest player to pair with the random player.
