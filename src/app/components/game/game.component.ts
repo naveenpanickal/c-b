@@ -93,19 +93,19 @@ export class GameComponent {
     //   })
     // }
 
-    this.data.getGames().subscribe(data => {
-      let noOfGames = data.filter(game => game["elo_match"]).length;
-      let correctElo = data.filter(game => game["elo_match"] && game["elo_predition_correct"] === true).length
-      let correctTrueskill = data.filter(game => game["elo_match"] &&  game["trueskill_prediction_correct"] === true).length
-      let correctGlicko = data.filter(game => game["elo_match"] && game["glicko_prediction_correct"] === true).length
+    // this.data.getGames().subscribe(data => {
+    //   let noOfGames = data.filter(game => game["trueskill_match"]).length;
+    //   let correctElo = data.filter(game => game["trueskill_match"] && game["elo_predition_correct"] === true).length
+    //   let correctTrueskill = data.filter(game => game["trueskill_match"] &&  game["trueskill_prediction_correct"] === true).length
+    //   let correctGlicko = data.filter(game => game["trueskill_match"] && game["glicko_prediction_correct"] === true).length
 
-      console.log("ELO: ", `${correctElo} / ${noOfGames}`);
-      console.log("Glicko: ", `${correctGlicko} / ${noOfGames}`);
-      console.log("Trueskill: ", `${correctTrueskill} / ${noOfGames}`);
+    //   console.log("ELO: ", `${correctElo} / ${noOfGames}`);
+    //   console.log("Glicko: ", `${correctGlicko} / ${noOfGames}`);
+    //   console.log("Trueskill: ", `${correctTrueskill} / ${noOfGames}`);
 
 
 
-    })
+    // })
     // this.data.getPlayer('JJU9dJmWXjMCklWivCjx').subscribe(data => {
     //   // console.log("player:",data);
 
@@ -251,7 +251,7 @@ export class GameComponent {
   //           this.startGame();
   //       });
   //   }
-    //***elo is_online */
+    //***glicko is_online */
     let onlinePlayers: any[] = [];
     const playersObservables = this.PlayersIds.map(id => this.data.getPlayer(id));
 
@@ -274,9 +274,9 @@ export class GameComponent {
         // Remove the selected player from the list of online players.
         onlinePlayers.splice(randomIndex, 1);
 
-        // Sort the remaining online players by the difference in elo.rating with the selected player.
+        // Sort the remaining online players by the difference in glicko.mu with the selected player.
         onlinePlayers.sort((a, b) =>
-            Math.abs(a.elo.rating - randomPlayer.elo.rating) - Math.abs(b.elo.rating - randomPlayer.elo.rating)
+            Math.abs(a.glicko.mu - randomPlayer.glicko.mu) - Math.abs(b.glicko.mu - randomPlayer.glicko.mu)
         );
 
         // Select the closest player to pair with the random player.
@@ -290,6 +290,8 @@ export class GameComponent {
         this.playersSubscription = this.players$.subscribe(data => {
             this.player1 = data.player1;
             this.player2 = data.player2;
+            console.log("PLAYERS***", this.player1, this.player2);
+
             this.startGame();
         });
     }
@@ -584,7 +586,7 @@ async checkStatus(){
     let player1EloRating = {rating: p1EloRating};
     let player2EloRating = {rating: p2EloRating};
     let gameData = {
-      data: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: '', elo_predition_correct : eloPrediction === 0.5? true: false, glicko_prediction_correct: glickoPrediction === 0.5? true: false, trueskill_prediction_correct: trueskillPrediction === 0.5? true: false, is_valid: true, elo_correction_new: true, elo_match: true
+      date: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: '', elo_predition_correct : eloPrediction === 0.5? true: false, glicko_prediction_correct: glickoPrediction === 0.5? true: false, trueskill_prediction_correct: trueskillPrediction === 0.5? true: false, is_valid: true, trueskill_match: true,
     }
 
     // this.data.addGames({date: Date.now(), player1: "dfsdfsdf", player2: "3423423", winner: "423423", elo_predition_correct: false, glicko_prediction_correct: false, trueskill_prediction_correct: true})
@@ -652,7 +654,7 @@ async checkStatus(){
     let glickoPrediction = this.getPrediction(this.player1.glicko.mu, this.player2.glicko.mu);
     let trueskillPrediction = this.getPrediction(this.player1.trueskill.mu, this.player2.trueskill.mu);
     let gameData = {
-      data: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: this.player1.id, elo_predition_correct : eloPrediction === 1? true: false, glicko_prediction_correct: glickoPrediction === 1? true: false, trueskill_prediction_correct: trueskillPrediction === 1? true: false, is_valid: true, elo_correction_new: true, elo_match: true
+      date: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: this.player1.id, elo_predition_correct : eloPrediction === 1? true: false, glicko_prediction_correct: glickoPrediction === 1? true: false, trueskill_prediction_correct: trueskillPrediction === 1? true: false, is_valid: true, trueskill_match: true
     }
     // this.player1 = Object.assign(this.player1, {elo:{rating: player1EloRating } });
     // this.player2 = Object.assign(this.player2, {elo:{rating: player2EloRating } });
@@ -707,7 +709,7 @@ async checkStatus(){
     let trueskillPrediction = this.getPrediction(this.player1.trueskill.mu, this.player2.trueskill.mu);
     // console.log("ELO PREDICTION*******", eloPrediction);
     let gameData = {
-      data: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: this.player2.id, elo_predition_correct : eloPrediction === 0? true: false, glicko_prediction_correct: glickoPrediction === 0? true: false, trueskill_prediction_correct: trueskillPrediction === 0? true: false, is_valid: true, elo_correction_new: true, elo_match: true
+      date: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: this.player2.id, elo_predition_correct : eloPrediction === 0? true: false, glicko_prediction_correct: glickoPrediction === 0? true: false, trueskill_prediction_correct: trueskillPrediction === 0? true: false, is_valid: true, trueskill_match: true
     }
     const p1 = new Rating(this.player1.trueskill.mu, this.player1.trueskill.sigma);
     const p2 = new Rating(this.player2.trueskill.mu, this.player2.trueskill.sigma);
