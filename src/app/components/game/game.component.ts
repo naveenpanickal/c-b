@@ -94,10 +94,10 @@ export class GameComponent {
     // }
 
     // this.data.getGames().subscribe(data => {
-    //   let noOfGames = data.filter(game => game["trueskill_match"]).length;
-    //   let correctElo = data.filter(game => game["trueskill_match"] && game["elo_predition_correct"] === true).length
-    //   let correctTrueskill = data.filter(game => game["trueskill_match"] &&  game["trueskill_prediction_correct"] === true).length
-    //   let correctGlicko = data.filter(game => game["trueskill_match"] && game["glicko_prediction_correct"] === true).length
+    //   let noOfGames = data.filter(game => game["skill_match"]).length;
+    //   let correctElo = data.filter(game => game["skill_match"] && game["elo_predition_correct"] === true).length
+    //   let correctTrueskill = data.filter(game => game["skill_match"] &&  game["trueskill_prediction_correct"] === true).length
+    //   let correctGlicko = data.filter(game => game["skill_match"] && game["glicko_prediction_correct"] === true).length
 
     //   console.log("ELO: ", `${correctElo} / ${noOfGames}`);
     //   console.log("Glicko: ", `${correctGlicko} / ${noOfGames}`);
@@ -276,7 +276,7 @@ export class GameComponent {
 
         // Sort the remaining online players by the difference in trueskill.mu with the selected player.
         onlinePlayers.sort((a, b) =>
-            Math.abs(a.trueskill.mu - randomPlayer.trueskill.mu) - Math.abs(b.trueskill.mu - randomPlayer.trueskill.mu)
+            Math.abs(a.skill - randomPlayer.skill) - Math.abs(b.skill - randomPlayer.skill)
         );
 
         // Select the closest player to pair with the random player.
@@ -586,7 +586,7 @@ async checkStatus(){
     let player1EloRating = {rating: p1EloRating};
     let player2EloRating = {rating: p2EloRating};
     let gameData = {
-      date: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: '', elo_predition_correct : eloPrediction === 0.5? true: false, glicko_prediction_correct: glickoPrediction === 0.5? true: false, trueskill_prediction_correct: trueskillPrediction === 0.5? true: false, is_valid: true, trueskill_match: true,
+      date: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: '', elo_predition_correct : eloPrediction === 0.5? true: false, glicko_prediction_correct: glickoPrediction === 0.5? true: false, trueskill_prediction_correct: trueskillPrediction === 0.5? true: false, is_valid: true, skill_match: true,
     }
 
     // this.data.addGames({date: Date.now(), player1: "dfsdfsdf", player2: "3423423", winner: "423423", elo_predition_correct: false, glicko_prediction_correct: false, trueskill_prediction_correct: true})
@@ -654,7 +654,7 @@ async checkStatus(){
     let glickoPrediction = this.getPrediction(this.player1.glicko.mu, this.player2.glicko.mu);
     let trueskillPrediction = this.getPrediction(this.player1.trueskill.mu, this.player2.trueskill.mu);
     let gameData = {
-      date: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: this.player1.id, elo_predition_correct : eloPrediction === 1? true: false, glicko_prediction_correct: glickoPrediction === 1? true: false, trueskill_prediction_correct: trueskillPrediction === 1? true: false, is_valid: true, trueskill_match: true
+      date: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: this.player1.id, elo_predition_correct : eloPrediction === 1? true: false, glicko_prediction_correct: glickoPrediction === 1? true: false, trueskill_prediction_correct: trueskillPrediction === 1? true: false, is_valid: true, skill_match: true
     }
     // this.player1 = Object.assign(this.player1, {elo:{rating: player1EloRating } });
     // this.player2 = Object.assign(this.player2, {elo:{rating: player2EloRating } });
@@ -709,7 +709,7 @@ async checkStatus(){
     let trueskillPrediction = this.getPrediction(this.player1.trueskill.mu, this.player2.trueskill.mu);
     // console.log("ELO PREDICTION*******", eloPrediction);
     let gameData = {
-      date: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: this.player2.id, elo_predition_correct : eloPrediction === 0? true: false, glicko_prediction_correct: glickoPrediction === 0? true: false, trueskill_prediction_correct: trueskillPrediction === 0? true: false, is_valid: true, trueskill_match: true
+      date: Date.now(), player1: this.player1.id, player2: this.player2.id, winner: this.player2.id, elo_predition_correct : eloPrediction === 0? true: false, glicko_prediction_correct: glickoPrediction === 0? true: false, trueskill_prediction_correct: trueskillPrediction === 0? true: false, is_valid: true, skill_match: true
     }
     const p1 = new Rating(this.player1.trueskill.mu, this.player1.trueskill.sigma);
     const p2 = new Rating(this.player2.trueskill.mu, this.player2.trueskill.sigma);

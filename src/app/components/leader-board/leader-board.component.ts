@@ -16,7 +16,7 @@ export class LeaderBoardComponent {
   constructor(private data: DataService){}
   ngOnInit(){
     this.data.getPlayers().pipe().subscribe(data => {
-      this.players = data.sort((a,b) => b.trueskill.mu - a.trueskill.mu);
+      this.players = data.sort((a,b) => b.skill - a.skill);
       console.log("Players",this.players);
       this.dataSource  = new MatTableDataSource(data);
       console.log("DATA SOURCE", this.dataSource);
