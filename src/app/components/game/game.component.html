@@ -1,13 +1,13 @@
 
 <div class="flex p-8">
-  <!-- <div >
+  <div >
     <div class="flex p-5">
       <app-game-child class="p-2 game-screen" [Player]="player1.name || ''" [isGameOver] = "clearDisplay" [opponentGuess]="player1Guess" [secretNumber] ='secretNumberPlayer2' (guessFeedback)="feedbackPlayer1($event)"></app-game-child>
       <app-game-child class="p-2 game-screen" [Player]="player2.name || ''" [isGameOver] = "clearDisplay" [opponentGuess]="player2Guess" [secretNumber] = "secretNumberPlayer1" (guessFeedback)="feedbackPlayer2($event)"></app-game-child>
     </div>
 
     <h2>{{winMessage}}</h2>
-  </div> -->
+  </div>
 
   <app-leader-board></app-leader-board>
 

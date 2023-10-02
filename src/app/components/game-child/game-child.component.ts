@@ -21,16 +21,11 @@ export class GameChildComponent {
   ngOnInit(): void {
 
 
-
-
-
   }
 
   ngOnChanges(changes: SimpleChanges){
-    // console.log("child is gaeme over?",this.isGameOver);
 
     if(changes['isGameOver'] && changes['isGameOver'].currentValue === true) {
-      // console.log("CLEARING DISPLAY");
 
       this.clearDisplay();
     }
@@ -43,7 +38,6 @@ export class GameChildComponent {
     }
   }
   clearDisplay(){
-    // console.log("Clear display");
 
 
    this.secretNumber  = '';
